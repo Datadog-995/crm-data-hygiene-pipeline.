@@ -1,36 +1,52 @@
-# CRM Data Hygiene & Lead Audit Pipeline
+# E-Commerce & Retail Data Operations Suite
 
-An automated Python data engineering pipeline designed to clean, standardize, and audit messy e-commerce and CRM sales lead datasets.
+An automated Python data engineering suite featuring specialized pipelines for CRM lead hygiene and POS-to-Accounting financial reconciliation.
 
-## Key Features
-* **Email Hygiene & Syntax Validation:** Trims whitespace, standardizes casing, and validates proper email syntax using regular expressions.
-* **Phone Number Standardization:** Strips non-numeric characters and converts valid US phone numbers into clean standard formats `(XXX) XXX-XXXX`.
-* **Text Field Normalization:** Trims trailing/leading spaces and standardizes name casing across lead fields.
-* **Deduplication:** Identifies and removes duplicate records based on primary key fields to maintain data integrity.
+---
 
-## Tech Stack & Requirements
-* **Language:** Python 3.x
-* **Libraries:** `pandas`
-* **Workflow Automation:** GitHub Actions CI/CD
+## 1. CRM Data Hygiene Pipeline
 
-## Usage & Script Execution
+Cleans, standardizes, and audits raw customer/lead exports from CRM platforms (Salesforce, HubSpot, Zoho).
+
+* **Features:** Email syntax validation, phone number formatting, string trimming, proper title casing, and contact deduplication.
+* **Script:** `crm_cleaner.py`
+* **Sample Data:** `sample_dirty_crm_data.csv`
+* **Tests:** `test_crm_cleaner.py`
 
 ```python
 import pandas as pd
 from crm_cleaner import clean_crm_data
 
-# Load messy CRM dataset
 df_raw = pd.read_csv('sample_dirty_crm_data.csv')
-
-# Execute data hygiene pipeline
 df_cleaned = clean_crm_data(df_raw)
-
-# Export cleaned results
 df_cleaned.to_csv('cleaned_crm_leads.csv', index=False)
 ```
 
-## Running Unit Tests
-To run automated unit tests across email validation and phone formatting logic:
-```bash
-python -m unittest test_crm_cleaner.py
+---
+
+## 2. POS-to-Accounting General Ledger Pipeline
+
+Aggregates raw daily Point-of-Sale transaction logs into balanced double-entry General Ledger journal entries ready for accounting software (QuickBooks, Xero).
+
+* **Features:** Calculates gross revenue, sales tax payable, tip liabilities, and merchant processing fees; verifies $0.00 out-of-balance reconciliation.
+* **Script:** `pos_reconciler.py`
+* **Sample Data:** `sample_pos_sales.csv`
+* **Tests:** `test_pos_reconciler.py`
+
+```python
+import pandas as pd
+from pos_reconciler import process_pos_summary
+
+df_sales = pd.read_csv('sample_pos_sales.csv')
+df_journal_entry = process_pos_summary(df_sales)
+df_journal_entry.to_csv('daily_journal_entry.csv', index=False)
 ```
+
+---
+
+## Running Automated Tests & CI/CD
+Run all unit tests locally:
+```bash
+python -m unittest discover -p "test_*.py"
+```
+All commits are automatically validated via GitHub Actions CI/CD (`.github/workflows/data_pipeline.yml`).
