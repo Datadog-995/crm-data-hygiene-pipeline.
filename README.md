@@ -1,58 +1,36 @@
 # CRM Data Hygiene & Lead Audit Pipeline
 
-An automated Python data cleaning pipeline built with Pandas and Regular Expressions (Regex) to standardize, validate, and audit messy sales leads exported from CRMs (Salesforce, HubSpot, Zoho).
+An automated Python data engineering pipeline designed to clean, standardize, and audit messy e-commerce and CRM sales lead datasets.
 
-## 📌 Features & Capabilities
-* **Name Normalization:** Automatically trims whitespace, applies Proper Title Casing, and splits `Full Name` into separate `First Name` and `Last Name` fields for personalized email campaigns.
-* **International Phone Standardization:** Uses regex pattern matching to clean raw phone numbers into standardized E.164 formats (`+1...`) while flagging extension noise or invalid strings.
-* **Email Domain & Syntax Validation:** Normalizes emails to lowercase and applies regular expression pattern checking (`^[\w\.-]+@[\w\.-]+\.\w+$`) to catch broken or malformed addresses.
-* **Lead Deduplication:** Detects exact and normalized duplicate contacts across lead records.
-* **Executive Summary Metrics:** Generates an immediate audit report summarizing total records processed, clean lead counts, and flag totals.
+## Key Features
+* **Email Hygiene & Syntax Validation:** Trims whitespace, standardizes casing, and validates proper email syntax using regular expressions.
+* **Phone Number Standardization:** Strips non-numeric characters and converts valid US phone numbers into clean standard formats `(XXX) XXX-XXXX`.
+* **Text Field Normalization:** Trims trailing/leading spaces and standardizes name casing across lead fields.
+* **Deduplication:** Identifies and removes duplicate records based on primary key fields to maintain data integrity.
 
----
-
-## 🛠️ Tech Stack & Requirements
+## Tech Stack & Requirements
 * **Language:** Python 3.x
-* **Libraries:** `pandas`, `re` (Regular Expressions)
-* **Environment:** Google Colab / Jupyter Notebooks
+* **Libraries:** `pandas`
+* **Workflow Automation:** GitHub Actions CI/CD
 
----
-
-## 🚀 Script Execution
+## Usage & Script Execution
 
 ```python
 import pandas as pd
-import re
+from crm_cleaner import clean_crm_data
 
-# Load raw CRM lead export
-df = pd.read_csv('dirty_crm_leads.csv')
+# Load messy CRM dataset
+df_raw = pd.read_csv('sample_dirty_crm_data.csv')
 
-# 1. Clean and split full names
-df['Full_Name_Clean'] = df['Full_Name'].astype(str).str.strip().str.title()
-df['First_Name'] = df['Full_Name_Clean'].apply(lambda x: x.split()[0] if len(x.split()) > 0 else '')
-df['Last_Name'] = df['Full_Name_Clean'].apply(lambda x: ' '.join(x.split()[1:]) if len(x.split()) > 1 else '')
-
-# 2. Lowercase and validate email syntax
-df['Email_Clean'] = df['Email'].astype(str).str.strip().str.lower()
-email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-df['Is_Valid_Email'] = df['Email_Clean'].apply(lambda x: bool(re.match(email_pattern, x)))
-
-# 3. Format phone numbers to E.164 standard
-def format_phone(phone_str):
-    digits = re.sub(r'\D', '', str(phone_str))
-    if len(digits) == 10:
-        return f"+1{digits}"
-    elif len(digits) == 11 and digits.startswith('1'):
-        return f"+{digits}"
-    else:
-        return 'INVALID_PHONE'
-
-df['Phone_Clean'] = df['Phone'].apply(format_phone)
-
-# 4. Deduplicate on normalized email
-df['Is_Duplicate'] = df.duplicated(subset=['Email_Clean'], keep='first')
+# Execute data hygiene pipeline
+df_cleaned = clean_crm_data(df_raw)
 
 # Export cleaned results
-columns_order = ['Lead_ID', 'First_Name', 'Last_Name', 'Company', 'Phone_Clean', 'Email_Clean', 'Is_Valid_Email', 'Is_Duplicate']
-df_clean = df[columns_order]
-df_clean.to_csv('cleaned_crm_leads.csv', index=False)
+df_cleaned.to_csv('cleaned_crm_leads.csv', index=False)
+```
+
+## Running Unit Tests
+To run automated unit tests across email validation and phone formatting logic:
+```bash
+python -m unittest test_crm_cleaner.py
+```
