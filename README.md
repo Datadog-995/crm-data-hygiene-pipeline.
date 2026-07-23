@@ -1,5 +1,7 @@
 # E-Commerce & Retail Data Operations Suite
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Datadog-995/crm-data-hygiene-pipeline./blob/main/notebooks/data_operations_demo.ipynb)
+
 An automated Python data engineering suite featuring specialized pipelines for CRM lead hygiene and POS-to-Accounting financial reconciliation.
 
 ---
