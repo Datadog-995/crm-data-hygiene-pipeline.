@@ -1,4 +1,4 @@
-name: CRM Data Pipeline CI
+name: CRM & POS Data Pipelines CI
 
 on:
   push:
@@ -25,4 +25,4 @@ jobs:
 
     - name: Run unit tests
       run: |
-        python -m unittest test_crm_cleaner.py
+        python -m unittest discover -p "test_*.py"
